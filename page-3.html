@@ -1,3 +1,4 @@
+<!-- Please ignore where it says humidity, it is supposed to say wind direction -->
 <!DOCTYPE html>
 <html lang="no">
 <head>
@@ -74,7 +75,7 @@
                 <h1>New York</h1>
                 <p id="USAtemperature">Loading...</p>
                 <p id="USAwind">Loading...</p>
-                <p id="USAhumidity">Loading...</p>
+                <p id="USAhumidity">Loading...</p> 
             </div>
         </div>
     </div>
@@ -102,14 +103,14 @@
                 // Loacates divs in html code
                 const temperatureDiv = document.getElementById(location.name + 'temperature');
                 const windDiv = document.getElementById(location.name + 'wind');
-                const humidityDiv = document.getElementById(location.name + 'humidity');
+                const windDirDiv = document.getElementById(location.name + 'humidity');
                 const lastUpdateP = document.getElementById(`lastUpdate`);
 
                 // Gets weather data from fetched json
-                const temperature = weatherData.properties.timeseries[0].data.instant.details.air_temperature;
-                const wind = weatherData.properties.timeseries[0].data.instant.details.wind_speed;
-                const humidity = weatherData.properties.timeseries[0].data.instant.details.relative_humidity;
-                const lastUpdate = weatherData.properties.timeseries[0].time;
+                const temperature = weatherData.current_weather.temperature;
+                const wind = weatherData.current_weather.windspeed;
+                const windDir = weatherData.current_weather.winddirection;
+                const lastUpdate = weatherData.current_weather.time;
                 const date = new Date(lastUpdate); // When was the data updated?
 
                 // Kode to retrieve hour and minute out of the data variable
@@ -121,20 +122,17 @@
                 lastUpdateP.innerHTML = `Last updated: ${time}`;
                 temperatureDiv.innerHTML = `<p>Temperature: ${temperature} °C</p>`;
                 windDiv.innerHTML = `<p>Wind Speed: ${wind} m/s</p>`;
-                humidityDiv.innerHTML =  `<p>Relative Humidity: ${humidity} %</p>`;
+                windDirDiv.innerHTML =  `<p>Wind Direction: ${windDir}°</p>`;
             }
         }
     }
     
     // Async function for retrieving weather data from api
     async function getWeatherData(lat, lon) { // Locations latitude and longitude
-        const url = `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`;
+        const url = `https://api.open-
+meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
     
-        const response = await fetch(url, { // Await fetch response before running
-            headers: {
-                'User-Agent': 'YourAppName/1.0 (contact@example.com)', 
-            }
-        });
+        const response = await fetch(url); // Await fetch response before running
 
         if (!response.ok) { // If error occurs upon fetch request
             console.error('Error fetching weather data:', response.statusText);
@@ -157,4 +155,5 @@
 </script>
 
 </body>
-</html>
+</html>     
+
