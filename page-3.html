@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>page-3</title>
+</head>
+<body>
+    <div class="box-1">
+        <div class="block-1">
+            <div class="header-1">
+                <h2>SuperAmazingWebsite</h2>
+            </div>
+            <div class="navBar">
+                <nav>
+                    <ul>
+                        <li class="refferal"><a href="page-1.html">Home</a></li>
+                        <li class="refferal"><a href="page-2.html">Dynamic-page</a></li>
+                        <li class="refferal"><a href="page-3.html">Weather updates</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <hr>
+        </div>
+    </div>
+    <div id="weatherHeader">
+        <h1>Current weather in capitals</h1>
+        <p id="lastUpdate"></p>
+    </div>
+    <div id="weatherBoxes">
+        <div id="Norway">
+            <div id="weather">
+                <h1>Oslo</h1>
+                <p id="Norwaytemperature">Loading...</p>
+                <p id="Norwaywind">Loading...</p>
+                <p id="Norwayhumidity">Loading...</p>
+            </div>
+        </div>
+        <div id="Sweden">
+            <div id="weather">
+                <h1>Stockholm</h1>
+                <p id="Swedentemperature">Loading...</p>
+                <p id="Swedenwind">Loading...</p>
+                <p id="Swedenhumidity">Loading...</p>
+            </div>
+        </div>
+        <div id="Denmark">
+            <div id="weather">
+                <h1>København</h1>
+                <p id="Denmarktemperature">Loading...</p>
+                <p id="Denmarkwind">Loading...</p>
+                <p id="Denmarkhumidity">Loading...</p>
+            </div>
+        </div>
+        <div id="Finland">
+            <div id="weather">
+                <h1>Helsinki</h1>
+                <p id="Finlandtemperature">Loading...</p>
+                <p id="Finlandwind">Loading...</p>
+                <p id="Finlandhumidity">Loading...</p>
+            </div>
+        </div>
+        <div id="Iceland">
+            <div id="weather">
+                <h1>Reykjavik</h1>
+                <p id="Icelandtemperature">Loading...</p>
+                <p id="Icelandwind">Loading...</p>
+                <p id="Icelandhumidity">Loading...</p>
+            </div>
+        </div>
+        <div id="USA">
+            <div id="weather">
+                <h1>New York</h1>
+                <p id="USAtemperature">Loading...</p>
+                <p id="USAwind">Loading...</p>
+                <p id="USAhumidity">Loading...</p>
+            </div>
+        </div>
+    </div>
+    <div id="footer">
+        <p>Copyright©</p>
+    </div>
+
+
+<script>    // Backend code for loading weather data automaticaly
+    const locations = [
+        { name: "Norway", lat: 59.91, lon: 10.75 },  // Oslo
+        { name: "Sweden", lat: 59.33, lon: 18.06 },  // Stockholm
+        { name: "Denmark", lat: 55.67, lon: 12.56 }, // København
+        { name: "Finland", lat: 60.17, lon: 24.94 }, // Helsinki
+        { name: "Iceland", lat: 64.13, lon: -21.93 },// Reykjavik
+        { name: "USA", lat: 40.71, lon: -74.01 }     // New York
+    ];
+
+    async function loadData() { // Async function for loading data
+        // Async functions allow other code to run while the code is waiting for something form a server
+        for (let location of locations) {
+            const weatherData = await getWeatherData(location.lat, location.lon);
+            
+            if (weatherData) {
+                // Loacates divs in html code
+                const temperatureDiv = document.getElementById(location.name + 'temperature');
+                const windDiv = document.getElementById(location.name + 'wind');
+                const humidityDiv = document.getElementById(location.name + 'humidity');
+                const lastUpdateP = document.getElementById(`lastUpdate`);
+
+                // Gets weather data from fetched json
+                const temperature = weatherData.properties.timeseries[0].data.instant.details.air_temperature;
+                const wind = weatherData.properties.timeseries[0].data.instant.details.wind_speed;
+                const humidity = weatherData.properties.timeseries[0].data.instant.details.relative_humidity;
+                const lastUpdate = weatherData.properties.timeseries[0].time;
+                const date = new Date(lastUpdate); // When was the data updated?
+
+                // Kode to retrieve hour and minute out of the data variable
+                const hours = date.getUTCHours().toString().padStart(2, '0'); // Timer
+                const minutes = date.getUTCMinutes().toString().padStart(2, '0'); // Minutter
+                const time = `${hours}:${minutes}`;
+
+                // Places newly loaded data into html page
+                lastUpdateP.innerHTML = `Last updated: ${time}`;
+                temperatureDiv.innerHTML = `<p>Temperature: ${temperature} °C</p>`;
+                windDiv.innerHTML = `<p>Wind Speed: ${wind} m/s</p>`;
+                humidityDiv.innerHTML =  `<p>Relative Humidity: ${humidity} %</p>`;
+            }
+        }
+    }
+    
+    // Async function for retrieving weather data from api
+    async function getWeatherData(lat, lon) { // Locations latitude and longitude
+        const url = `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`;
+    
+        const response = await fetch(url, { // Await fetch response before running
+            headers: {
+                'User-Agent': 'YourAppName/1.0 (contact@example.com)', 
+            }
+        });
+
+        if (!response.ok) { // If error occurs upon fetch request
+            console.error('Error fetching weather data:', response.statusText);
+            return null;
+        }
+
+        // save data to variable and return upon recieving the data
+        const data = await response.json();
+        return data;
+    }
+
+    // Load data upon opening web page
+    loadData();
+
+    // Automatically retrieve data every 100000ms / 100s
+    setInterval(function() {
+        console.log("Updating Data...")
+        loadData();
+    }, 100000); // New data request every 100000ms
+</script>
+
+</body>
+</html>
